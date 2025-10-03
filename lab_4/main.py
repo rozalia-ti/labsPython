@@ -60,14 +60,27 @@ def main():
         res_recursive_cached.append(benchmark(fact_recursive_cached, [n], number=10000, repeat=5))
         res_iterative_cached.append(benchmark(fact_iterative_cached, [n], number=10000, repeat=5))
 
-    plt.plot(test_data, res_recursive, label="Рекурсивный")
+    plt.figure(figsize=(12, 5))
+#первый график
+    plt.subplot(1, 2, 1)
     plt.plot(test_data, res_iterative, label="Итеративный")
-    plt.plot(test_data, res_recursive_cached, label="Рекурсивный с кешированием")
-    plt.plot(test_data, res_iterative_cached, label="Итеративный с кешированием")
+    plt.plot(test_data, res_recursive, label="Рекурсивный")
+    plt.plot(test_data, res_iterative_cached, label="Итеративный с кешированием", color='red')
     plt.xlabel("n")
     plt.ylabel("Время (сек)")
-    plt.title("Сравнение рекурсивного и итеративного факториала")
+    plt.title("Сравнение с итеративным кешированием")
     plt.legend()
+#второй график
+    plt.subplot(1, 2, 2)
+    plt.plot(test_data, res_iterative, label="Итеративный")
+    plt.plot(test_data, res_recursive, label="Рекурсивный")
+    plt.plot(test_data, res_recursive_cached, label="Рекурсивный с кешированием", color='green')
+    plt.xlabel("n")
+    plt.ylabel("Время (сек)")
+    plt.title("Сравнение с рекурсивным кешированием")
+    plt.legend()
+
+    plt.tight_layout()
     plt.show()
 
 
