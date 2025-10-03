@@ -20,7 +20,7 @@ def fact_recursive_cached(n: int) -> int:
 
 
 def fact_iterative(n: int) -> int:
-    """Нерекурсивный факториал"""
+    """Итеративный факториал"""
     res = 1
     for i in range(1, n + 1):
         res *= i
@@ -29,7 +29,7 @@ def fact_iterative(n: int) -> int:
 
 @lru_cache(maxsize=None)
 def fact_iterative_cached(n: int) -> int:
-    """Нерекурсивный факториал с кешированием"""
+    """Итеративный факториал с кешированием"""
     res = 1
     for i in range(1, n + 1):
         res *= i
