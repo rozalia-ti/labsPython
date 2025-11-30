@@ -1,0 +1,16 @@
+function get_currencies started working with params <BoundArguments (currency_codes=['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD', 'SGD', 'HKD', 'NOK', 'SEK', 'TRY', 'PLN', 'DKK', 'HUF', 'CZK', 'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD'], url='https://www.cbr.ru/scripts/XML_daily.asp')>.
+Function get_currencies finished working with result: {'USD': 78.2284, 'EUR': 90.819, 'GBP': 103.6683, 'JPY': 50.0662, 'CNY': 11.0211, 'KZT': 15.1353, 'CHF': 97.0094, 'CAD': 55.7421, 'AUD': 51.1066, 'SGD': 60.3381, 'HKD': 10.0667, 'NOK': 76.7901, 'SEK': 82.4371, 'TRY': 18.4498, 'PLN': 21.3599, 'DKK': 12.1352, 'HUF': 23.7322, 'CZK': 37.4926, 'RON': 17.7646, 'BGN': 46.3411, 'BRL': 14.6257, 'INR': 87.4493, 'UAH': 18.5407, 'BYN': 26.8928, 'AMD': 20.5092} 
+ 
+
+function get_currencies started working with params <BoundArguments (currency_codes=['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD', 'SGD', 'HKD', 'NOK', 'SEK', 'TRY', 'PLN', 'DKK', 'HUF', 'CZK', 'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD'], url='https://www.cbr.ru/scripts/XML_daily.asp')>.
+Function get_currencies finished working with result: {'USD': 78.2284, 'EUR': 90.819, 'GBP': 103.6683, 'JPY': 50.0662, 'CNY': 11.0211, 'KZT': 15.1353, 'CHF': 97.0094, 'CAD': 55.7421, 'AUD': 51.1066, 'SGD': 60.3381, 'HKD': 10.0667, 'NOK': 76.7901, 'SEK': 82.4371, 'TRY': 18.4498, 'PLN': 21.3599, 'DKK': 12.1352, 'HUF': 23.7322, 'CZK': 37.4926, 'RON': 17.7646, 'BGN': 46.3411, 'BRL': 14.6257, 'INR': 87.4493, 'UAH': 18.5407, 'BYN': 26.8928, 'AMD': 20.5092} 
+ 
+
+function get_currencies started working with params <BoundArguments (currency_codes=['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD', 'SGD', 'HKD', 'NOK', 'SEK', 'TRY', 'PLN', 'DKK', 'HUF', 'CZK', 'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD'], url='https://www.cbr.ru/scripts/XML_daily.asp')>.
+Function get_currencies finished working with result: {'USD': 78.2284, 'EUR': 90.819, 'GBP': 103.6683, 'JPY': 50.0662, 'CNY': 11.0211, 'KZT': 15.1353, 'CHF': 97.0094, 'CAD': 55.7421, 'AUD': 51.1066, 'SGD': 60.3381, 'HKD': 10.0667, 'NOK': 76.7901, 'SEK': 82.4371, 'TRY': 18.4498, 'PLN': 21.3599, 'DKK': 12.1352, 'HUF': 23.7322, 'CZK': 37.4926, 'RON': 17.7646, 'BGN': 46.3411, 'BRL': 14.6257, 'INR': 87.4493, 'UAH': 18.5407, 'BYN': 26.8928, 'AMD': 20.5092} 
+ 
+
+function get_currencies started working with params <BoundArguments (currency_codes=['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD', 'SGD', 'HKD', 'NOK', 'SEK', 'TRY', 'PLN', 'DKK', 'HUF', 'CZK', 'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD'], url='https://www.cbr.ru/scripts/XML_daily.asp')>.
+Function get_currencies finished working with result: {'USD': 78.2284, 'EUR': 90.819, 'GBP': 103.6683, 'JPY': 50.0662, 'CNY': 11.0211, 'KZT': 15.1353, 'CHF': 97.0094, 'CAD': 55.7421, 'AUD': 51.1066, 'SGD': 60.3381, 'HKD': 10.0667, 'NOK': 76.7901, 'SEK': 82.4371, 'TRY': 18.4498, 'PLN': 21.3599, 'DKK': 12.1352, 'HUF': 23.7322, 'CZK': 37.4926, 'RON': 17.7646, 'BGN': 46.3411, 'BRL': 14.6257, 'INR': 87.4493, 'UAH': 18.5407, 'BYN': 26.8928, 'AMD': 20.5092} 
+ 
+
