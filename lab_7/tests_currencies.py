@@ -1,3 +1,4 @@
+#Тесты функции
 import unittest
 from unittest.mock import patch, Mock
 from io import StringIO
