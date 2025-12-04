@@ -1,3 +1,4 @@
+#Исходный код get_currencies (без логирования).
 import requests
 from bs4 import BeautifulSoup
 from typing import Dict, List
@@ -6,19 +7,11 @@ from logger import logger
 from io import StringIO
 import logging
 
+
 default_list = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD', 
             'SGD', 'HKD', 'NOK', 'SEK', 'TRY', 'PLN', 'DKK', 'HUF', 'CZK', 
             'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD']
 
-stream = StringIO()
-log = logging.getLogger("L1") 
-
-log.setLevel(logging.INFO)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-log.addHandler(console_handler)
-
-@logger(handle = log) ##СЮДА ВВОДИТЬ: sys.stdout||stream||log|| any another value - on defolt it will be sys.stdout
 def get_currencies(currency_codes: List[str] = default_list, url: str = "https://www.cbr.ru/scripts/XML_daily.asp") -> Dict[str, float]:
     # API request
     try:
@@ -60,7 +53,7 @@ def get_currencies(currency_codes: List[str] = default_list, url: str = "https:/
 if __name__ == "__main__":
     try:
         rates = get_currencies()  # заданы стандартные параметры
-        # print(rates) #print result
+        print(rates) #print result
 
     except ConnectionError as e:
         print(f"Ошибка соединения: API недоступен {e}")

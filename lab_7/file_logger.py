@@ -1,7 +1,8 @@
+#файловый логгер
 import requests
 from bs4 import BeautifulSoup
 from typing import Dict, List
-from logger import logger
+# from logger import logger
 import sys
 from io import StringIO
 import logging
@@ -12,8 +13,6 @@ import functools
 default_list = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD', 
             'SGD', 'HKD', 'NOK', 'SEK', 'TRY', 'PLN', 'DKK', 'HUF', 'CZK', 
             'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD']
-
-
 
 file_logger = logging.getLogger("currency_file")
 
