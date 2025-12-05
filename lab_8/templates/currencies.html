@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ myapp }} - Список валют</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+     <!-- <link rel="stylesheet" href="styles.css"> -->
+    
+</head>
+<body class="container mt-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">{{ myapp }}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/users">Пользователи</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/currencies">Валюты</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/author">Об авторе</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <h1 class="text-center mb-4">{{ myapp }}</h1>
+
+    
+    {% if currencies_dict %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Список валют</h5>
+        </div>
+          <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table">
+                        <tr>
+                            <th>Код валюты</th>
+                            <th>Название</th>
+                            <th>Курс (руб.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- то что у нас парсится идет сюда -->
+                        {% for code, rate in currencies_dict.items() %} 
+                        <tr>
+                            <td class="align-middle">
+                                <br>{{ code }}</br>
+                            </td>
+                            <td class="align-middle">
+                                {% if code == 'USD' %}Доллар США
+                                {% elif code == 'EUR' %}Евро
+                                {% elif code == 'GBP' %}Фунт стерлингов
+                                {% elif code == 'JPY' %}Японская иена
+                                {% elif code == 'CNY' %}Китайский юань
+                                {% elif code == 'KZT' %}Казахстанский тенге
+                                {% elif code == 'CHF' %}Швейцарский франк
+                                {% elif code == 'CAD' %}Канадский доллар
+                                {% elif code == 'AUD' %}Австралийский доллар
+                                {% elif code == 'SGD' %}Сингапурский доллар
+                                {% elif code == 'HKD' %}Гонконгский доллар
+                                {% elif code == 'NOK' %}Норвежская крона
+                                {% elif code == 'SEK' %}Шведская крона
+                                {% elif code == 'TRY' %}Турецкая лира
+                                {% elif code == 'PLN' %}Польский злотый
+                                {% elif code == 'DKK' %}Датская крона
+                                {% elif code == 'HUF' %}Венгерский форинт
+                                {% elif code == 'CZK' %}Чешская крона
+                                {% elif code == 'RON' %}Румынский лей
+                                {% elif code == 'BGN' %}Болгарский лев
+                                {% elif code == 'BRL' %}Бразильский реал
+                                {% elif code == 'INR' %}Индийская рупия
+                                {% elif code == 'UAH' %}Украинская гривна
+                                {% elif code == 'BYN' %}Белорусский рубль
+                                {% elif code == 'AMD' %}Армянский драм
+                                {% else %}Неизвестная валюта{% endif %}
+                            </td>
+                            <td class="text-end align-middle" >
+                                {{ rate|round(4) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

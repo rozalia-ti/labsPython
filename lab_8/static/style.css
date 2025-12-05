@@ -1,0 +1,28 @@
+/* th, td {
+  text-align: left;
+  padding: 8px 12px;
+  background-color: navy;
+}
+
+th:nth-child(3), 
+td:nth-child(3) {
+  text-align: right;
+}
+
+td:first-child {
+  text-align: center;
+}th, td {
+  text-align: left;
+  padding: 8px 12px;
+  background-color: navy !important;
+}
+
+th:nth-child(3), 
+td:nth-child(3) {
+  text-align: right !important;
+}
+
+td:first-child {
+  text-align: center !important;
+}
+ */
