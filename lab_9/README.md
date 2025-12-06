@@ -1,149 +1,243 @@
-# Лабораторная работа №9 - CRUD приложение для управления курсами валют
-### Выполнила Тихонова Роза P3122
+# ЛАБОРАТОРНАЯ РАБОТА №9 - CRUD приложение для управления курсами валют
+### Выполнила Тихонова Роза Р3122
+
+## Описание лабораторной работы
+Цель лабораторной работы - реализовать полнофункциональное веб-приложение для управления курсами валют с поддержкой CRUD операций (Create, Read, Update, Delete). Приложение использует архитектуру MVC, SQLite базу данных в памяти и интеграцию с API Центрального Банка РФ для получения актуальных курсов валют.
 
 ## Архитектура проекта
-Проект реализован по принципу MVC (Model-View-Controller):
-- **models/** - модели данных (Author, App, User, Currency, UserCurrency)
-- **controllers/** - контроллеры бизнес-логики (DatabaseController, CurrencyController)
-- **templates/** - HTML шаблоны для представления (Jinja2)
-- **api.py** - абстракция для работы с внешними API (ЦБ РФ)
-- **myapp.py** - точка входа, HTTP сервер и маршрутизация
+Проект реализован по принципу MVC (Model-View-Controller) с четким разделением ответственности:
 
-## Основные файлы
+### Структура проекта:
 
-### myapp.py
-Главный файл приложения, содержащий HTTP сервер на базе стандартной библиотеки Python.
+lab_9/
+├── models/ # Модели данных
+├── controllers/ # Контроллеры бизнес-логики
+├── templates/ # HTML шаблоны (Jinja2)
+├── api.py # Абстракция API
+├── myapp.py # Точка входа
+└── requirements.txt # Зависимости
 
-```python
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
-import os
-from jinja2 import Environment, FileSystemLoader
-from models.author import Author
-from models.app import App
-from models.currency import Currency
-from controllers.databasecontroller import DatabaseController
-from controllers.currencycontroller import CurrencyController
-from api import MockApi
 
-# Инициализация основных объектов
-author = Author('Роза Тихонова', 'P3122')
-app = App('CurrenciesApp', '1.0', author)
+## Описание файлов и работы функций
 
-# Инициализация БД и контроллеров
-db = DatabaseController()
-currency_controller = CurrencyController(db)
+### myapp.py - Главное приложение (точка входа)
 
-# Заполнение начальными данными
-db.populate_initial_data(MockApi())
+**Основные компоненты:**
+*Класс RequestHandler* - наследуется от `BaseHTTPRequestHandler` и обрабатывает все HTTP запросы
+*Функция run_server()* - запускает HTTP сервер на указанном порту
 
-# Инициализация Jinja2
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-env = Environment(loader=FileSystemLoader(template_dir))
+**Механизм работы:**
+1. Инициализирует основные объекты: приложение, автора, контроллеры БД
+2. Заполняет БД начальными данными из MockApi
+3. Настраивает Jinja2 для рендеринга шаблонов
+4. Обрабатывает маршруты через метод `do_GET()`
 
-class RequestHandler(BaseHTTPRequestHandler):
-    """
-    Обработчик HTTP запросов. Наследуется от BaseHTTPRequestHandler.
-    
-    Механизм работы:
-    1. Парсит URL и query-параметры с помощью urllib.parse
-    2. Определяет маршрут по path
-    3. Выполняет соответствующую бизнес-логику через контроллеры
-    4. Рендерит HTML шаблоны с данными
-    5. Отправляет ответ клиенту
-    """
-    
-    def do_GET(self):
-        """
-        Обрабатывает все GET-запросы к серверу.
-        
-        Поддерживаемые маршруты:
-        • / - Главная страница (index.html)
-        • /users - Список пользователей (users.html)
-        • /user?id=N - Детали пользователя (user_detail.html)
-        • /currencies - Просмотр валют (currencies.html)
-        • /currencies/crud - Управление валютами (currencies_crud.html)
-        • /currency/sync - Синхронизация с API ЦБ РФ
-        • /currency/update?code=USD - Обновление курса валюты
-        • /currency/delete?id=R01235 - Удаление валюты
-        • /currency/create - Добавление новой валюты
-        • /author - Информация об авторе (author.html)
-        
-        Возвращает:
-        HTTP ответ с HTML страницей или перенаправлением (302)
-        """
-        parsed = urlparse(self.path)
-        path = parsed.path
-        query = parse_qs(parsed.query)
-        
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
-        self.end_headers()
-        
-        try:
-            if path == "/":
-                template = env.get_template("index.html")
-                html = template.render(myapp=app.name, title="Главная")
-            elif path == "/users":
-                template = env.get_template("users.html")
-                users = db.read_users()
-                html = template.render(myapp=app.name, title="Пользователи", users=users)
-            # ... остальные маршруты
-        except Exception as e:
-            html = self._render_error(str(e))
-        
-        self.wfile.write(html.encode('utf-8'))
-    
-    def _render_error(self, error_msg):
-        """Рендерит страницу с ошибкой"""
-        template = env.get_template("currencies_crud.html")
-        currencies = currency_controller.list_currencies()
-        return template.render(
-            myapp=app.name,
-            title="Ошибка",
-            currencies=currencies,
-            message=f"Ошибка: {error_msg}",
-            message_type="error"
-        )
+**Маршрутизация:**
+Приложение поддерживает следующие маршруты:
+- `/` - Главная страница с навигацией
+- `/users` - Список пользователей
+- `/user?id=N` - Детальная информация о пользователе
+- `/currencies` - Просмотр курсов валют
+- `/currencies/crud` - Управление валютами (CRUD интерфейс)
+- `/currency/sync` - Синхронизация с API ЦБ РФ
+- `/currency/update?code=USD` - Обновление курса конкретной валюты
+- `/currency/delete?id=R01235` - Удаление валюты по ID
+- `/currency/create` - Форма добавления новой валюты
+- `/author` - Информация об авторе
 
-def run_server(port=8088):
-    """
-    Запускает HTTP сервер на указанном порту.
-    
-    Args:
-        port: Порт для запуска сервера (по умолчанию 8088)
-    
-    Возвращает:
-        None
-    """
-    server = HTTPServer(('localhost', port), RequestHandler)
-    
-    print(f"""
-    Сервер запущен: http://localhost:{port}
-    
-    Маршруты:
-    • /                - Главная страница
-    • /users           - Пользователи
-    • /user?id=N       - Детали пользователя
-    • /currencies      - Курсы валют (просмотр)
-    • /currencies/crud - Управление валютами (CRUD)
-    • /author          - Об авторе
-    
-    CRUD операции:
-    • /currency/sync      - Синхронизировать с API
-    • /currency/update?code=USD - Обновить курс
-    • /currency/delete?id=1     - Удалить валюту
-    • /currency/create     - Форма добавления
-    
-    Ctrl+C для остановки
-    """)
-    
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nСервер остановлен")
-        db.close()
-        server.server_close()
+### api.py - Абстракция работы с API
 
-if __name__ == "__main__":
-    run_server()
+**Класс Api (абстрактный):**
+Определяет интерфейс для работы с валютами. Реализует паттерн Strategy.
+
+**Класс MockApi:**
+Возвращает предопределенные данные без обращения к внешним API. Используется для:
+- Тестирования (без зависимости от сети)
+- Fallback при ошибках соединения
+- Начального заполнения базы данных
+
+**Класс ApplicationApi:**
+Реальная реализация для работы с API ЦБ РФ:
+1. Делает HTTP запрос к `https://www.cbr.ru/scripts/XML_daily.asp`
+2. Парсит XML ответ с помощью BeautifulSoup
+3. Учитывает кодировку windows-1251
+4. Преобразует значения с запятыми в float
+5. Создает объекты Currency
+
+**Механизм fallback:**
+При любой ошибке (сеть, парсинг, данные) автоматически возвращает данные из MockApi.
+
+### models/currency.py - Модель валюты
+
+**Атрибуты класса Currency:**
+- `id` - Уникальный идентификатор из ЦБ РФ (пример: "R01235")
+- `num_code` - Цифровой код ISO 4217 (пример: "840" для USD)
+- `char_code` - Символьный код из 3 букв (пример: "USD")
+- `nominal` - Номинал валюты (пример: 1 для USD, 100 для JPY)
+- `name` - Полное название валюты (пример: "Доллар США")
+- `value` - Текущий курс в рублях за номинал
+- `previous` - Предыдущий курс (опционально)
+
+**Методы расчета:**
+- `calculate_rate()` - курс за 1 единицу валюты (value / nominal)
+- `get_change()` - абсолютное изменение курса
+- `get_change_percent()` - процентное изменение курса
+
+**Валидация данных:**
+Класс использует свойства (properties) с сеттерами для валидации:
+- Проверка типов данных
+- Проверка положительности значений
+- Проверка длины кода валюты (3 символа)
+- Автоматическое преобразование в верхний регистр
+
+### controllers/databasecontroller.py - Работа с базой данных
+
+**Инициализация БД:**
+Создает три таблицы в SQLite in-memory базе:
+1. `user` - пользователи (id, name)
+2. `currency` - валюты (id, num_code, char_code, name, value, nominal, previous)
+3. `user_currency` - связи пользователь-валюта (user_id, currency_id)
+
+**CRUD операции для User:**
+- `create_user(name)` - создание пользователя
+- `read_users()` - чтение всех пользователей
+- `read_user_by_id(id)` - чтение по ID
+- `update_user(id, name)` - обновление
+- `delete_user(id)` - удаление
+
+**CRUD операции для Currency:**
+- `create_currency(currency)` - добавление валюты
+- `read_currencies()` - чтение всех валют
+- `update_currency_value(char_code, value)` - обновление курса
+- `delete_currency(id)` - удаление валюты
+
+**Связи User-Currency:**
+- `create_user_currency(user_id, currency_id)` - создание связи
+- `read_user_currencies(user_id)` - получение валют пользователя
+- `delete_user_currency(user_id, currency_id)` - удаление связи
+
+**Безопасность:**
+Все SQL запросы используют параметризацию для защиты от инъекций.
+
+### controllers/currencycontroller.py - Бизнес-логика валют
+
+**Назначение:**
+Связывает DatabaseController с внешними API, реализует сложную бизнес-логику.
+
+**Основные методы:**
+- `list_currencies()` - получение списка всех валют из БД
+- `update_currency_from_api(char_code)` - обновление курса из API
+- `sync_currencies_from_api()` - синхронизация всех валют с API
+- `get_currency_by_code(char_code)` - поиск валюты по коду
+
+**Механизм синхронизации:**
+1. Получает валюты из ApplicationApi
+2. Для каждой валюты пытается добавить в БД
+3. Использует INSERT OR IGNORE для предотвращения дубликатов
+4. Возвращает количество добавленных валют
+
+### templates/ - HTML шаблоны
+
+**Базовый шаблон (base.html):**
+Определяет общую структуру всех страниц:
+- Мета-теги и кодировка
+- Подключение Bootstrap CSS
+- Навигационное меню
+- Основной контейнер для контента
+- Подключение JavaScript
+
+**Наследование шаблонов:**
+Все шаблоны наследуются от base.html:
+```html
+{% extends "base.html" %}
+{% block content %}
+<!-- Уникальное содержимое страницы -->
+{% endblock %}
+```
+
+Динамические данные:
+```
+{{ myapp }} - название приложения
+
+{{ user.name }} - имя пользователя
+
+{{ currency.rate|round(4) }} - курс с округлением
+```
+Условные операторы и циклы:
+```
+html
+{% if currencies %}
+  {% for currency in currencies %}
+  <!-- Отображение валюты -->
+  {% endfor %}
+{% else %}
+  <!-- Сообщение об отсутствии данных -->
+{% endif %}
+```
+
+requirements.txt - Зависимости
+Библиотеки:
+
+Jinja2>=3.0.0 - шаблонизатор для HTML
+
+requests>=2.28.0 - HTTP клиент для работы с API
+
+beautifulsoup4>=4.11.0 - парсинг XML ответов
+
+Установка:
+
+```
+pip install -r requirements.txt
+Запуск приложения
+Команда запуска:
+bash
+py myapp.py
+```
+Доступные эндпоинты после запуска:
+Сервер запускается на http://localhost:8088 с доступом к следующим страницам:
+
+- Главная страница: http://localhost:8088/
+
+- Пользователи: http://localhost:8088/users
+
+- Управление валютами: http://localhost:8088/currencies/crud
+
+- Просмотр валют: http://localhost:8088/currencies
+
+- Об авторе: http://localhost:8088/author
+
+### CRUD операции через интерфейс:
+Создание (Create):
+
+Перейдите на /currencies/crud
+
+Заполните форму добавления валюты
+
+Нажмите кнопку "Добавить"
+
+Чтение (Read):
+
+Просмотр списка валют: /currencies или /currencies/crud
+
+Просмотр пользователей: /users
+
+Детали пользователя: /user?id=N
+
+Обновление (Update):
+
+На странице /currencies/crud
+
+Нажмите кнопку "Обновить" для нужной валюты
+
+Или используйте /currency/sync для синхронизации всех валют
+
+Удаление (Delete):
+
+На странице /currencies/crud
+
+Нажмите кнопку "Удалить" для нужной валюты
+
+Подтвердите удаление в диалоговом окне
+
+### Требования к окружению
+Python 3.8 или выше
