@@ -1,7 +1,7 @@
 class Author():
     def __init__(self, name: str, group: str):
-        self.__name: str = name
-        self.__group: str = group
+        self.__name = name
+        self.__group = group
 
     @property
     def name(self):
@@ -9,10 +9,10 @@ class Author():
 
     @name.setter
     def name(self, name: str):
-        if type(name) is str and len(name) >= 2:
+        if isinstance(name, str) and len(name) >= 2:
             self.__name = name
         else:
-            raise ValueError('Ошибка при задании имени автора')
+            raise ValueError('Имя автора должно быть строкой от 2 символов')
 
     @property
     def group(self):
@@ -20,7 +20,7 @@ class Author():
 
     @group.setter
     def group(self, group: str):
-        if type(group) is str and len(group) > 5:
+        if isinstance(group, str) and len(group) > 5:
             self.__group = group
         else:
-            raise ValueError('Ошибка при задании группы автора')
+            raise ValueError('Группа должна быть строкой от 6 символов')

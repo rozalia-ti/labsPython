@@ -1,476 +1,149 @@
-# Лабораторная работа №8
-### Выполнила Тихонова Роза 501455 Р3122
--------------------------
-### Цель работы
-Создать клиент-серверное веб-приложение для отображения курсов валют с использованием:
-- Стандартного Python HTTP-сервера (HTTPServer)
-- Шаблонизатора Jinja2 для генерации HTML
-- Моделей предметной области с геттерами/сеттерами
-- Архитектуры MVC (Model-View-Controller)
-- API Центробанка для получения актуальных курсов валют
-- Функции get_currencies из предыдущих лабораторных работ
-- Системы подписок пользователей на валюты
+# Лабораторная работа №9 - CRUD приложение для управления курсами валют
+### Выполнила Тихонова Роза P3122
 
-### Архитектура проекта (MVC)
-*myapp.py* - основной контроллер приложения, запуск HTTP-сервера
+## Архитектура проекта
+Проект реализован по принципу MVC (Model-View-Controller):
+- **models/** - модели данных (Author, App, User, Currency, UserCurrency)
+- **controllers/** - контроллеры бизнес-логики (DatabaseController, CurrencyController)
+- **templates/** - HTML шаблоны для представления (Jinja2)
+- **api.py** - абстракция для работы с внешними API (ЦБ РФ)
+- **myapp.py** - точка входа, HTTP сервер и маршрутизация
 
-*api.py* - абстрактный API и реализации (MockApi, ApplicationApi)
-
-*models/* - модели предметной области с геттерами/сеттерами
-
-*templates/* - HTML-шаблоны Jinja2 для отображения данных
-
-*tests/* - юнит-тесты для API, эндпоинтов и парсинга параметров
-
-*utils/* - вспомогательные модули (get_currencies, logger)
-
-## Файлы
+## Основные файлы
 
 ### myapp.py
-Основной контроллер приложения. Запуск HTTP-сервера и обработка всех входящих запросов.
-
-#### Основные функции
-```run_server(port=8080)```
-*Назначение:* Запуск HTTP-сервера на указанном порту.
-*Принцип работы:* Создает экземпляр HTTPServer с кастомным обработчиком MyHTTPRequestHandler.
-
-*Параметры:*
-port (int, по умолчанию 8080): Порт для запуска сервера
-
-*Возвращаемое значение:* None
-
-*Особенности:*
-Выводит информацию о доступных маршрутах при запуске
-Обрабатывает KeyboardInterrupt для graceful shutdown
-Использует порт 8088 по умолчанию в main блоке
-
----
-
-```class MyHTTPRequestHandler(BaseHTTPRequestHandler)```
-*Назначение:* Обработчик HTTP-запросов.
-
-*Методы:*
-do_GET(): Обработка GET-запросов
-
-*Принцип работы:*
-1. Парсит URL и query-параметры с помощью urllib.parse
-2. Определяет маршрут по self.path
-3. Получает данные через API
-4. Рендерит соответствующий шаблон Jinja2
-5. Отправляет HTML-ответ клиенту
-
-*Поддерживаемые маршруты:*
-/ — главная страница
-/users — список пользователей
-/user?id=... — информация о конкретном пользователе
-/currencies — список валют с курсами
-/author — информация об авторе
-/api/users — JSON-API пользователей
-
-*Типы данных:*
-api: Api — абстрактный API для получения данных
-main_author: Author — объект автора приложения
-main_app: App — объект приложения
-env: Environment — объект Jinja2 Environment
-
-*Особенности:*
-Использует PackageLoader для загрузки шаблонов из папки templates/
-Устанавливает кодировку UTF-8 для русских символов
-Обрабатывает 404 ошибки с перенаправлением на главную
-
-*Запуск*
-```python myapp.py```
-
-### api.py
-Абстрактный API и реализации для работы с данными приложения.
-
-#### Основные классы
-```class Api(ABC)```
-*Назначение:* Абстрактный базовый класс для API.
-
-*Методы:*
-get_currencies(currency_codes: Optional[list[str]] = None) -> list[Currency]
-get_users() -> list[User]
-get_user_currencies() -> list[UserCurrency]
-
-*Типы данных:*
-Все методы возвращают списки соответствующих моделей
-currency_codes — опциональный список строковых кодов валют
-
----
-
-```class MockApi(Api)```
-*Назначение:* Заглушка API с тестовыми данными для тестирования.
-
-*Принцип работы:* Возвращает предопределенные списки тестовых данных.
-
-*Возвращаемые значения:*
-get_currencies(): Список из 25 объектов Currency с тестовыми данными
-get_users(): Список из 11 объектов User с тестовыми именами
-get_user_currencies(): Список объектов UserCurrency для связи пользователей и валют
-
-*Особенности:*
-Не требует доступа к интернету
-Используется для тестирования и разработки
-Все значения курсов валют — фиктивные
-
----
-
-```class ApplicationApi(Api)```
-*Назначение:* Реальная реализация API с доступом к API Центробанка РФ.
-
-*Константы:*
-CURRENCY_CODES_DEFAULT: list[str] — список из 25 популярных валют
-
-*Принцип работы:*
-1. Выполняет HTTP-запрос к API ЦБ РФ
-2. Парсит XML-ответ с помощью BeautifulSoup
-3. Преобразует данные в объекты Currency
-4. Фильтрует по запрошенным кодам валют
-
-*Обрабатываемые исключения:*
-ConnectionError — если API недоступен
-KeyError — если отсутствует тег Valute в XML
-TypeError — если курс имеет неверный формат
-ValueError — если получены некорректные данные
-
-*Особенности:*
-Использует requests для HTTP-запросов с таймаутом 10 секунд
-Парсит XML с кодировкой windows-1251
-Преобразует значения с запятыми в float (например, "91,2345" → 91.2345)
-Для get_users() и get_user_currencies() использует MockApi
-
-### models/__init__.py
-Экспорт всех моделей для удобного импорта.
-
-*Содержимое:*
-```
-from .author import Author
-from .app import App
-from .user import User
-from .currency import Currency
-from .user_currency import UserCurrency
-```
-
-*Назначение:* Позволяет импортировать модели как from models import Author, User, ...
-
-### models/author.py
-Модель автора приложения.
-
-#### Класс
-```class Author()```
-*Назначение:* Хранение информации об авторе приложения.
-
-*Свойства:*
-__name: str — имя автора
-__group: str — учебная группа
-
-*Геттеры/Сеттеры:*
-name (property): Возвращает имя автора
-name.setter: Устанавливает имя с валидацией (должно быть str и ≥ 2 символов)
-group (property): Возвращает группу автора
-group.setter: Устанавливает группу с валидацией (должна быть str и > 5 символов)
-
-*Конструктор:*
-```def __init__(self, name: str, group: str)```
-
-*Параметры конструктора:*
-name (str): Имя автора
-group (str): Учебная группа
-
-*Возвращаемое значение:* Объект Author
-
-*Обрабатываемые исключения:*
-ValueError — если параметры не проходят валидацию
-
-### models/app.py
-Модель приложения.
-
-#### Класс
-```class App()```
-*Назначение:* Хранение метаинформации о приложении.
-
-*Свойства:*
-__name: str — название приложения
-__version: float — версия приложения
-__author: Author — объект автора
-
-*Геттеры/Сеттеры:*
-name (property): Возвращает название приложения
-name.setter: Устанавливает название с валидацией (должно быть str и ≥ 2 символов)
-version (property): Возвращает версию приложения
-version.setter: Устанавливает версию с валидацией (должна быть float)
-author (property): Возвращает объект автора
-author.setter: Устанавливает автора с валидацией (должен быть Author)
-
-*Конструктор:*
-```def __init__(self, name: str, version: str, author: Author)```
-
-*Параметры конструктора:*
-name (str): Название приложения
-version (str): Версия приложения (будет преобразована в float)
-author (Author): Объект автора
-
-*Возвращаемое значение:* Объект App
-
-*Обрабатываемые исключения:*
-ValueError — если параметры не проходят валидацию
-
-### models/user.py
-Модель пользователя системы.
-
-#### Класс
-```class User()```
-*Назначение:* Представление пользователя системы.
-
-*Свойства:*
-__id: int — уникальный идентификатор пользователя
-__name: str — имя пользователя
-
-*Геттеры/Сеттеры:*
-id (property): Возвращает ID пользователя
-id.setter: Устанавливает ID с валидацией (должен быть int)
-name (property): Возвращает имя пользователя
-name.setter: Устанавливает имя с валидацией (должно быть str и ≥ 2 символов)
-
-*Конструктор:*
-```def __init__(self, id: int, name: str)```
-
-*Параметры конструктора:*
-id (int): Уникальный идентификатор
-name (str): Имя пользователя
-
-*Возвращаемое значение:* Объект User
-
-*Метод:*
-```def __repr__(self)```
-*Назначение:* Строковое представление объекта для отладки.
-
-*Возвращаемое значение:* str в формате User(<id>, <name>)
-
-### models/currency.py
-Модель валюты с курсом.
-
-#### Класс
-```class Currency()```
-*Назначение:* Хранение информации о валюте и её курсе.
-
-*Свойства:*
-__id: str — уникальный идентификатор валюты
-__num_code: str — цифровой код валюты
-__char_code: str — символьный код (3 символа)
-__nominal: int — номинал
-__name: str — название валюты
-__value: float — курс к рублю
-__rate: float — курс для одной единицы
-
-*Геттеры/Сеттеры:*
-Все свойства имеют геттеры и сеттеры с соответствующей валидацией:
-id: должен быть str
-num_code: должен быть str из цифр
-char_code: должен быть str длиной 3 символа
-nominal: должен быть строкой с числом
-name: должен быть непустой строкой
-value: должен быть строкой, преобразуется в float
-rate: должен быть строкой, преобразуется в float
-
-*Конструктор:*
-```def __init__(self, id: str, num_code: str, char_code: str, nominal: str, name: str, value: str, rate: str)```
-
-*Параметры конструктора:*
-Все параметры передаются как строки
-
-*Методы:*
-```def _parse_value(self, value_str: str) -> float```
-*Назначение:* Преобразование строки с запятой в float.
-
-*Параметры:*
-value_str (str): Строка вида "48,6178"
-
-*Возвращаемое значение:* float (например, 48.6178)
-
-*Обрабатываемые исключения:*
-ValueError — если строку нельзя преобразовать в число
-AttributeError — если передан не строковый тип
-
-```def __repr__(self)```
-*Назначение:* Строковое представление объекта для отладки.
-
-### models/user_currency.py
-Модель связи пользователь-валюта.
-
-#### Класс
-```class UserCurrency()```
-*Назначение:* Реализация связи "многие-ко-многим" между пользователями и валютами.
-
-*Свойства:*
-__id: str — уникальный идентификатор связи
-__user_id: int — ID пользователя
-
-*Геттеры/Сеттеры:*
-id (property): Возвращает ID связи
-id.setter: Устанавливает ID с валидацией (должен быть str)
-user_id (property): Возвращает ID пользователя
-user_id.setter: Устанавливает ID пользователя с валидацией (должен быть int)
-
-*Конструктор:*
-```def __init__(self, id: str, user_id: int)```
-
-*Параметры конструктора:*
-id (str): Уникальный идентификатор связи
-user_id (int): ID пользователя
-
-*Возвращаемое значение:* Объект UserCurrency
-
-*Метод:*
-```def __repr__(self)```
-*Назначение:* Строковое представление объекта для отладки.
-
-### utils/currencies_api.py
-Функция получения курсов валют с API ЦБ РФ.
-
-#### Основная функция
-```def get_currencies(currency_codes: List[str] = default_list, url: str = "https://www.cbr.ru/scripts/XML_daily.asp") -> Dict[str, float]```
-*Назначение:* Получение курсов указанных валют с API Центробанка РФ.
-*Принцип работы:*
-1. Выполняет HTTP GET-запрос к указанному URL
-2. Парсит XML-ответ с помощью BeautifulSoup
-3. Извлекает данные о валютах
-4. Фильтрует по запрошенным кодам
-5. Возвращает словарь с курсами
-
-*Параметры:*
-currency_codes (List[str], по умолчанию default_list): Список кодов валют для получения
-url (str, по умолчанию "https://www.cbr.ru/scripts/XML_daily.asp"): URL API ЦБ РФ
-
-*Возвращаемое значение:* Dict[str, float] — словарь, где ключи — коды валют, значения — курсы к рублю
-
-*Обрабатываемые исключения:*
-ConnectionError — если API недоступен или произошла ошибка соединения
-KeyError — если отсутствует ключ "Valute" или запрашиваемая валюта
-TypeError — если курс валюты имеет неверный тип данных
-ValueError — если получены некорректные данные в ответе API
-
-*Типы данных:*
-default_list: List[str] — предопределенный список из 25 популярных валют
-
-*Особенности:*
-Использует библиотеки requests для HTTP-запросов и BeautifulSoup для парсинга XML
-Преобразует строковые значения курсов (с запятой как разделителем) в float
-Таймаут запроса — 10 секунд
-Поднимает исключения с информативными сообщениями об ошибках
-
-### utils/logger.py
-Параметризуемый декоратор для логирования вызовов функций.
-
-#### Основная функция
-```def logger(*, handle=sys.stdout)```
-*Назначение:* Декоратор для логирования вызовов функций с поддержкой разных типов вывода.
-*Принцип работы:* В зависимости от типа параметра handle выбирает соответствующий метод записи логов.
-
-*Параметры:*
-handle (объект, по умолчанию sys.stdout): Целевой объект для логирования
-
-*Поддерживаемые типы handle:*
-TextIOWrapper или StringIO — логирование через метод write()
-logging.Logger — логирование через методы info() и error()
-Любой другой тип — вызывает исключение Exception
-
-*Возвращаемое значение:* Декоратор-обертка для функции
-
-*Особенности:*
-Использует functools.wraps для сохранения метаданных оригинальной функции
-Автоматически определяет тип handle с помощью match-case
-Логирует начало и конец выполнения функции
-Перехватывает исключения, логирует их и повторно выбрасывает
-Форматирует параметры функции с помощью inspect.signature
-
-### tests/test_currencies.py
-Юнит-тесты для функции получения курсов валют.
-
-#### Класс тестов
-```class TestGetCurrencies(unittest.TestCase)```
-*Назначение:* Тестирование функции get_currencies и API классов.
-
-*Методы тестирования:*
-test_get_currencies_correct_return() — тест корректного возврата курсов
-test_get_currencies_with_default_list() — тест с параметрами по умолчанию
-test_get_currencies_nonexistent_currency() — тест с несуществующей валютой
-test_get_currencies_connection_error() — тест ошибки соединения
-test_get_currencies_value_error_on_invalid_xml() — тест некорректного XML
-test_get_currencies_key_error_on_missing_valute() — тест отсутствия тега Valute
-test_get_currencies_type_error_on_invalid_rate() — тест некорректного значения курса
-test_get_currencies_specific_currency_subset() — тест подмножества валют
-test_mock_api_get_currencies() — тестирование MockApi
-
-*Принцип работы:* Использует unittest.mock.patch для мокирования HTTP-запросов и изоляции тестов от внешних зависимостей.
-
-*Особенности:*
-Использует mock-данные XML ответов
-Проверяет все типы исключений, указанные в задании
-Тестирует как успешные сценарии, так и обработку ошибок
-Использует assertRaises для проверки исключений
-Проверяет корректность типов возвращаемых данных
-
-*Запуск*
-```python -m unittest tests.test_currencies -v```
-
-### tests/test_endpoints.py
-Тесты доступности эндпоинтов сервера.
-
-#### Класс тестов
-```class Test(unittest.TestCase)```
-*Назначение:* Проверка доступности основных маршрутов сервера.
-
-*Методы тестирования:*
-test_root() — доступность главной страницы
-test_users() — доступность списка пользователей
-test_currencies() — доступность списка валют
-test_author() — доступность страницы об авторе
-
-*Принцип работы:* Отправляет HTTP-запросы к запущенному серверу и проверяет статус-коды.
-
-*Особенности:*
-Предполагает запущенный сервер на localhost:8088
-Проверяет статус-коды ответов (200 OK)
-Использует библиотеку requests для HTTP-запросов
-
-*Запуск*
-```python -m unittest tests.test_endpoints -v```
-
-### tests/test_query.py
-Тесты парсинга query-параметров.
-
-#### Класс тестов
-```class Test(unittest.TestCase)```
-*Назначение:* Проверка корректности парсинга параметров URL.
-
-*Методы тестирования:*
-test_qs1() — парсинг пути /user?id=123
-test_qs2() — парсинг пути /user/?id=123
-
-*Принцип работы:* Использует urllib.parse.urlparse и parse_qs для разбора URL.
-
-*Особенности:*
-Проверяет корректное извлечение числовых значений из query-параметров
-Тестирует разные форматы URL (с / и без)
-
-*Запуск*
-```python -m unittest tests.test_query -v```
-
-## Запуск приложения
-
-### Запуск сервера
-```python myapp.py```
-Сервер запустится на http://localhost:8088
-
-### Запуск всех тестов (в отдельном терминале)
-```python -m unittest discover -s tests -p "test_*.py" -v```
-
-
-## Требования к окружению
-- Установленные зависимости:
-```pip install requests beautifulsoup4 jinja2```
-- Python 3.8 и выше
-- Доступ к интернету для работы с API ЦБ РФ (только для ApplicationApi)
-
+Главный файл приложения, содержащий HTTP сервер на базе стандартной библиотеки Python.
+
+```python
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
+import os
+from jinja2 import Environment, FileSystemLoader
+from models.author import Author
+from models.app import App
+from models.currency import Currency
+from controllers.databasecontroller import DatabaseController
+from controllers.currencycontroller import CurrencyController
+from api import MockApi
+
+# Инициализация основных объектов
+author = Author('Роза Тихонова', 'P3122')
+app = App('CurrenciesApp', '1.0', author)
+
+# Инициализация БД и контроллеров
+db = DatabaseController()
+currency_controller = CurrencyController(db)
+
+# Заполнение начальными данными
+db.populate_initial_data(MockApi())
+
+# Инициализация Jinja2
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+env = Environment(loader=FileSystemLoader(template_dir))
+
+class RequestHandler(BaseHTTPRequestHandler):
+    """
+    Обработчик HTTP запросов. Наследуется от BaseHTTPRequestHandler.
+    
+    Механизм работы:
+    1. Парсит URL и query-параметры с помощью urllib.parse
+    2. Определяет маршрут по path
+    3. Выполняет соответствующую бизнес-логику через контроллеры
+    4. Рендерит HTML шаблоны с данными
+    5. Отправляет ответ клиенту
+    """
+    
+    def do_GET(self):
+        """
+        Обрабатывает все GET-запросы к серверу.
+        
+        Поддерживаемые маршруты:
+        • / - Главная страница (index.html)
+        • /users - Список пользователей (users.html)
+        • /user?id=N - Детали пользователя (user_detail.html)
+        • /currencies - Просмотр валют (currencies.html)
+        • /currencies/crud - Управление валютами (currencies_crud.html)
+        • /currency/sync - Синхронизация с API ЦБ РФ
+        • /currency/update?code=USD - Обновление курса валюты
+        • /currency/delete?id=R01235 - Удаление валюты
+        • /currency/create - Добавление новой валюты
+        • /author - Информация об авторе (author.html)
+        
+        Возвращает:
+        HTTP ответ с HTML страницей или перенаправлением (302)
+        """
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
+        
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.end_headers()
+        
+        try:
+            if path == "/":
+                template = env.get_template("index.html")
+                html = template.render(myapp=app.name, title="Главная")
+            elif path == "/users":
+                template = env.get_template("users.html")
+                users = db.read_users()
+                html = template.render(myapp=app.name, title="Пользователи", users=users)
+            # ... остальные маршруты
+        except Exception as e:
+            html = self._render_error(str(e))
+        
+        self.wfile.write(html.encode('utf-8'))
+    
+    def _render_error(self, error_msg):
+        """Рендерит страницу с ошибкой"""
+        template = env.get_template("currencies_crud.html")
+        currencies = currency_controller.list_currencies()
+        return template.render(
+            myapp=app.name,
+            title="Ошибка",
+            currencies=currencies,
+            message=f"Ошибка: {error_msg}",
+            message_type="error"
+        )
+
+def run_server(port=8088):
+    """
+    Запускает HTTP сервер на указанном порту.
+    
+    Args:
+        port: Порт для запуска сервера (по умолчанию 8088)
+    
+    Возвращает:
+        None
+    """
+    server = HTTPServer(('localhost', port), RequestHandler)
+    
+    print(f"""
+    Сервер запущен: http://localhost:{port}
+    
+    Маршруты:
+    • /                - Главная страница
+    • /users           - Пользователи
+    • /user?id=N       - Детали пользователя
+    • /currencies      - Курсы валют (просмотр)
+    • /currencies/crud - Управление валютами (CRUD)
+    • /author          - Об авторе
+    
+    CRUD операции:
+    • /currency/sync      - Синхронизировать с API
+    • /currency/update?code=USD - Обновить курс
+    • /currency/delete?id=1     - Удалить валюту
+    • /currency/create     - Форма добавления
+    
+    Ctrl+C для остановки
+    """)
+    
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nСервер остановлен")
+        db.close()
+        server.server_close()
+
+if __name__ == "__main__":
+    run_server()
