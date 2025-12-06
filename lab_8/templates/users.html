@@ -34,7 +34,7 @@
 
     <h1 class="text-center mb-4">{{ myapp }}</h1>
 
-    
+
     {% if users %}
     <div class="card">
         <div class="card-header">
@@ -44,7 +44,7 @@
             <ul class="list-group">
                 {% for item in users %}
                 <li class="list-group-item">
-                    <a href="{{ item.name }}" class="text-decoration-none">{{ item.name }}</a>
+                    <a href="users/?id={{ item.id }}" class="text-decoration-none">{{ item.name }}</a>
                 </li>
                 {% endfor %}
             </ul>

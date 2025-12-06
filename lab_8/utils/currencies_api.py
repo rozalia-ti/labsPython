@@ -12,19 +12,16 @@ default_list = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KZT', 'CHF', 'CAD', 'AUD',
             'RON', 'BGN', 'BRL', 'INR', 'UAH', 'BYN', 'AMD']
 
 def get_currencies(currency_codes: List[str] = default_list, url: str = "https://www.cbr.ru/scripts/XML_daily.asp") -> Dict[str, float]:
-    # API request
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         raise ConnectionError(f"API недоступен: {e}")
-    #parse XML
     try:
         soup = BeautifulSoup(response.content, 'xml')
         valute_elements = soup.find_all('Valute')
         if not valute_elements:
             raise KeyError("Ключ 'Valute' не найден в ответе API")
-        #go to dict
         all_valutes: Dict[str, float] = {}
         for valute in valute_elements:
             char_code_elem = valute.find('CharCode')
@@ -33,7 +30,6 @@ def get_currencies(currency_codes: List[str] = default_list, url: str = "https:/
                 continue
             char_code = char_code_elem.text
             value_text = value_elem.text
-            #check type course
             try:
                 rate_value = float(value_text.replace(',', '.'))
             except (ValueError, TypeError):

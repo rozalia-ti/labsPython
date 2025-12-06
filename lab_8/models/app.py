@@ -1,7 +1,7 @@
 from .author import Author
 
 class App():
-    def __init__(self, name: str, version: float, author: Author):
+    def __init__(self, name: str, version: str, author: Author):
         self.__name: str = name
         self.__version: str = version
         self.__author: Author = author;
@@ -9,7 +9,7 @@ class App():
     @property
     def name(self):
         return self.__name
-    
+
     @name.setter
     def name(self, name: str):
         if type(name) is str and len(name) >= 2:
@@ -19,7 +19,7 @@ class App():
     @property
     def version(self):
         return self.__version
-    
+
     @version.setter
     def version(self, version: float):
         if type(version) is float:
@@ -30,7 +30,7 @@ class App():
     @property
     def author(self):
         return self.__author
-    
+
     @author.setter
     def author(self, author: str):
         if type(author) is str:
