@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Главная страница</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">Пользователи</h6>
+                                <p class="card-text">Просмотр списка пользователей и их подписок на валюты.</p>
+                                <a href="/users" class="btn btn-outline-primary btn-sm">Перейти</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">Валюты</h6>
+                                <p class="card-text">Просмотр текущих курсов валют и управление ими.</p>
+                                <a href="/currencies/crud" class="btn btn-outline-primary btn-sm">Перейти</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">Об авторе</h6>
+                                <p class="card-text">Информация о разработчике приложения.</p>
+                                <a href="/author" class="btn btn-outline-primary btn-sm">Перейти</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
