@@ -1,0 +1,5 @@
+КОМАНДЫ ДЛЯ КОМПИЛЯЦИИ
+
+cd cython_integration
+python setup.py build_ext --inplace
+cd .. 
